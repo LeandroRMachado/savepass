@@ -16,22 +16,36 @@ export function Form() {
   const [password, setPassword] = useState("")
 
   async function handleNew() {
-    const id = uuid.v4()
+    try {
+      const id = uuid.v4();
 
-    const newData = {
-      id,
-      name,
-      user,
-      password
+      const newData = {
+        id,
+        name,
+        user,
+        password
+      }
+
+      const response = await AsyncStorage.getItem("@savepass:passwords");
+      const previousData = response ? JSON.parse(response) : [];
+
+      const data = [...previousData, newData]
+
+      await AsyncStorage.setItem("@savepass:passwords", JSON.stringify(data))
+      // chave : valor => sendo valor uma coleção de valores
+      //"@savepass"=> nome da aplicação, "passwords"=> nome da coleção
+      Toast.show({
+        type: "success",
+        text1: "Cadastrado com sucesso!"
+      })
+    }catch (error) {
+      console.log(error)
+      
+      Toast.show({
+        type: "error",
+        text1: "Não foi possível cadastrar!"
+      })
     }
-
-    await AsyncStorage.setItem("@savepass:passwords", JSON.stringify(newData))
-    // chave : valor => sendo valor uma coleção de valores
-    //"@savepass"=> nome da aplicação, "passwords"=> nome da coleção
-    Toast.show({
-      type: "success",
-      text1: "Cadastrado com sucesso!"
-    })
   }
 
   return (
