@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import uuid from 'react-native-uuid';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 import { styles } from './styles';
 
@@ -26,12 +26,14 @@ export function Form() {
         password
       }
 
-      const response = await AsyncStorage.getItem("@savepass:passwords");
+      const { getItem, setItem } = useAsyncStorage("@savepass:passwords")
+
+      const response = await getItem();
       const previousData = response ? JSON.parse(response) : [];
 
       const data = [...previousData, newData]
 
-      await AsyncStorage.setItem("@savepass:passwords", JSON.stringify(data))
+      await setItem(JSON.stringify(data))
       // chave : valor => sendo valor uma coleção de valores
       //"@savepass"=> nome da aplicação, "passwords"=> nome da coleção
       Toast.show({

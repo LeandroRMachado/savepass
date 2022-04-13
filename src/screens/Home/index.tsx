@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 
 import { Card, CardProps } from '../../components/Card';
@@ -13,10 +13,22 @@ import { Button } from '../../components/Button';
 export function Home() {
   const [data, setData] = useState<CardProps[]>([]);
 
+  const { getItem, setItem } = useAsyncStorage("@savepass:passwords")
+
   async function handleFetchData() {
-    const response = await AsyncStorage.getItem("@savepass:passwords")
+    const response = await getItem()
     const data = response ? JSON.parse(response) : []
     setData(data)
+  }
+
+  async function handleRemove(id: string) {
+    const response = await getItem();
+    const previousData = response ? JSON.parse(response) : [];
+
+    const data = previousData.filter((item: CardProps) => item.id !== id)
+    setItem(JSON.stringify(data))
+    handleFetchData()
+    // setData(data)
   }
 
   useFocusEffect(useCallback(() => {
@@ -46,7 +58,7 @@ export function Home() {
         renderItem={({ item }) =>
           <Card
             data={item}
-            onPress={() => {}}
+            onPress={() => handleRemove(item.id)}
           />
         }
       />
